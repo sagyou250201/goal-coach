@@ -5,7 +5,9 @@ export async function POST(req: Request) {
     const body = await req.json();
 
     const goal = body.goal ?? "";
+    const deadline = body.deadline ?? "";
     const state = body.state ?? "";
+    const survey = body.survey ?? "";
 
     const apiKey = process.env.GEMINI_API_KEY;
     const model = process.env.GEMINI_MODEL || "gemini-3-flash-preview";
@@ -21,16 +23,27 @@ export async function POST(req: Request) {
 あなたは行動変容に強いコーチです。
 ユーザーを否定せず、今日すぐ実行できる具体的な一歩を提案してください。
 
+以下の情報をもとに、日本語でコーチングしてください。
+
 目標:
 ${goal}
+
+期限:
+${deadline}
 
 現在の状況:
 ${state}
 
-以下の形式で日本語で返してください。
-- 現在の状態
-- 今日やるべきこと
-- 一言アドバイス
+アンケート回答:
+${survey}
+
+以下の形式で返してください。
+【現在の状態】
+...
+【今日やるべきこと】
+...
+【一言アドバイス】
+...
 `;
 
     const res = await fetch(
