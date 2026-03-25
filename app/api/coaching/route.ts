@@ -7,7 +7,8 @@ export async function POST(req: Request) {
     const goal = body.goal ?? "";
     const deadline = body.deadline ?? "";
     const state = body.state ?? "";
-    const survey = body.survey ?? "";
+    const surveyAnswers =
+      Array.isArray(body.surveyAnswers) ? body.surveyAnswers : [];
 
     const apiKey = process.env.GEMINI_API_KEY;
     const model = process.env.GEMINI_MODEL || "gemini-3-flash-preview";
@@ -19,23 +20,31 @@ export async function POST(req: Request) {
       );
     }
 
+    const surveyText = surveyAnswers
+      .map(
+        (item: { question?: string; answer?: string }, index: number) =>
+          `Q${index + 1}: ${item.question ?? ""}\n回答: ${item.answer ?? ""}`
+      )
+      .join("\n\n");
+
     const prompt = `
-あなたは行動変容に強いコーチです。
-ユーザーを否定せず、今日すぐ実行できる具体的な一歩を提案してください。
+あなたは行動変容に強い日本語コーチです。
+ユーザーを否定せず、甘やかしすぎず、今日すぐ実行できる具体的な一歩を提案してください。
+内容は実用的で、短すぎず、わかりやすくしてください。
 
 以下の情報をもとに、日本語でコーチングしてください。
 
-目標:
+【目標】
 ${goal}
 
-期限:
+【期限】
 ${deadline}
 
-現在の状況:
+【現在の状況】
 ${state}
 
-アンケート回答:
-${survey}
+【アンケート回答】
+${surveyText}
 
 以下の形式で返してください。
 【現在の状態】
